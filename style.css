@@ -1,0 +1,13 @@
+/* Custom scrollbar for elements with class 'scrollable' */
+.scrollable::-webkit-scrollbar {
+  width: 2px; /* Set the scrollbar width */
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: #b3b3b3; /* Set the scrollbar thumb color */
+  border-radius: 5px; /* Optional: makes the thumb rounded */
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background-color: transparent; /* Optional: to make the track invisible */
+}
