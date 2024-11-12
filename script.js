@@ -174,6 +174,7 @@ function toggleButtonToStop() {
   <span>Stop</span>
   `;
   startFocusBtn.classList.add("bg-error");
+  startFocusBtn.classList.remove("bg-yellow");
   startFocusBtn.classList.add("text-white");
 }
 
@@ -182,6 +183,7 @@ function toggleButtonToStart() {
           <img src='./assets/startFocusBtn.svg' />
           <span>Start Focusing</span>`;
   startFocusBtn.classList.remove("bg-error");
+  startFocusBtn.classList.add("bg-yellow");
   startFocusBtn.classList.remove("text-white");
 }
 
