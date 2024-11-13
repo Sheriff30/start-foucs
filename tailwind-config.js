@@ -28,10 +28,10 @@ tailwind.config = {
         inknut: ["Inknut Antiqua", "serif"],
       },
       backgroundColor: {
-        "black-transparent": "#00000099", // Custom background color
+        "black-transparent": "#00000099",
       },
       backdropBlur: {
-        8: "8px", // Custom blur value
+        8: "8px",
       },
     },
   },

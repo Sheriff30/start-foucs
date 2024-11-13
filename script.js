@@ -1,3 +1,4 @@
+// DOM Elements
 const timerBtn = document.querySelector(".timerBtn");
 const timerModal = document.querySelector(".timer-modal");
 const customTimerModalBtn = document.querySelector(".custom-timer-modal-btn");
@@ -18,56 +19,63 @@ const swNavBtn = document.querySelector(".swNavBtn");
 const startFocus = document.querySelector(".start-focus");
 const startSW = document.querySelector(".start-sw");
 const swBtn = document.querySelector(".swBtn");
-//
+const swNavBtnActive = document.querySelector(".swNavBtnActive");
+const swNavBtnInactive = document.querySelector(".swNavBtnInactive");
+const timerNavBtnActive = document.querySelector(".timerNavBtnActive");
+const timerNavBtnInactive = document.querySelector(".timerNavBtnInactive");
+const swDisplay = document.querySelector(".sw-display");
+const startBtn = document.querySelector(".start-sw-btn");
+const stopResetBtnContainer = document.querySelector(".stop-reset-sw-btn");
+const stopBtn = stopResetBtnContainer.querySelector(".stopBtn");
+const resetBtn = stopResetBtnContainer.querySelector(".resetBtn");
 
-let timerInterval;
-let isTimerRunning = false; // Track if the timer is running
-let totalSeconds = 0; // Store the remaining seconds
+// Timer and Stopwatch Variables
+let timerInterval, timer;
+let isTimerRunning = false; // Timer state
+let isRunning = false; // Stopwatch state
+let totalSeconds = 0; // Timer remaining seconds
+let minutes = 0,
+  seconds = 0; // Stopwatch time
 
-// Show the timer modal when clicking the main timer button
-timerBtn.addEventListener("click", () => {
-  timerModal.classList.remove("hidden");
+// Modal Controls
+function openModal(modalElement) {
   modal.classList.remove("hidden");
-});
+  modalElement.classList.remove("hidden");
+}
 
-// Hide the timer modal when clicking the close button inside it
+function closeModal(modalElement) {
+  modal.classList.add("hidden");
+  modalElement.classList.add("hidden");
+}
+
+timerBtn.addEventListener("click", () => openModal(timerModal));
+
 timerModal
-  .querySelector("button svg")
-  .parentNode.addEventListener("click", () => {
-    modal.classList.add("hidden");
-    timerModal.classList.add("hidden");
-    customTimerModal.classList.add("hidden");
-  });
+  .querySelector("button img")
+  .parentNode.addEventListener("click", () => closeModal(timerModal));
 
-// Show the custom timer modal and hide the timer modal when clicking the "Custom mins" button
 customTimerModalBtn.addEventListener("click", () => {
-  customTimerModal.classList.remove("hidden");
+  openModal(customTimerModal);
   timerModal.classList.add("hidden");
 });
 
-// Handle timer modal buttons click to set time
+// Timer Modal Button Click
 timerModalBtns.forEach((button) => {
   button.addEventListener("click", () => {
     const time = button.getAttribute("data-time");
     timerDisplay.setAttribute("data-time", time);
     timerDisplay.textContent = formatTime(time, 0); // Default seconds to 0
-    totalSeconds = time * 60; // Set total seconds for the timer
-    modal.classList.add("hidden");
-    timerModal.classList.add("hidden");
-    customTimerModal.classList.add("hidden");
+    totalSeconds = time * 60;
+    closeModal(timerModal);
   });
 });
 
-// Function to format time as mm:ss
+// Format Time (mm:ss)
 function formatTime(minutes, seconds = 0) {
-  minutes = parseInt(minutes, 10);
-  seconds = parseInt(seconds, 10);
-  return `${minutes.toString().padStart(2, "0")}:${seconds
-    .toString()
-    .padStart(2, "0")}`;
+  return `${parseInt(minutes, 10).toString().padStart(2, "0")}:${parseInt(seconds, 10).toString().padStart(2, "0")}`;
 }
 
-// Set the custom timer
+// Custom Timer Set
 setBtn.addEventListener("click", () => {
   const customMinutes = customTimerInput.value;
 
@@ -75,8 +83,7 @@ setBtn.addEventListener("click", () => {
     timerDisplay.setAttribute("data-time", customMinutes);
     timerDisplay.textContent = formatTime(customMinutes, 0);
     totalSeconds = customMinutes * 60;
-    customTimerModal.classList.add("hidden");
-    modal.classList.add("hidden");
+    closeModal(customTimerModal);
     errorMessage.classList.add("hidden");
     customTimerInput.value = "";
   } else {
@@ -84,31 +91,26 @@ setBtn.addEventListener("click", () => {
   }
 });
 
-// Cancel the custom timer and close the modal
+// Cancel Custom Timer
 cancelBtn.addEventListener("click", () => {
-  customTimerModal.classList.add("hidden");
-  modal.classList.add("hidden");
+  closeModal(customTimerModal);
   errorMessage.classList.add("hidden");
   customTimerInput.value = "";
 });
 
-// Custom timer input validation: only allow digits and limit to 2 characters
+// Custom Timer Input Validation
 customTimerInput.addEventListener("input", () => {
   customTimerInput.value = customTimerInput.value.replace(/\D/g, "");
-
-  if (customTimerInput.value.length > 2) {
+  if (customTimerInput.value.length > 2)
     customTimerInput.value = customTimerInput.value.slice(0, 2);
-  }
-
   errorMessage.classList.add("hidden");
 });
 
-// Toggle the visibility of the dropdown when clicking the Select Tag button
-selectTagButton.addEventListener("click", () => {
-  dropdown.classList.toggle("hidden");
-});
+// Dropdown Tag Selection
+selectTagButton.addEventListener("click", () =>
+  dropdown.classList.toggle("hidden")
+);
 
-// Handle the selection of a tag
 buttons.forEach((button) => {
   button.addEventListener("click", (e) => {
     const selectedTag = e.target.getAttribute("data-tag");
@@ -117,42 +119,17 @@ buttons.forEach((button) => {
   });
 });
 
-// Close the dropdown when clicking outside
+// Close Dropdown when Clicking Outside
 document.addEventListener("click", (e) => {
   if (!selectTagButton.contains(e.target) && !dropdown.contains(e.target)) {
     dropdown.classList.add("hidden");
   }
 });
 
-// Function to disable inputs and buttons
-function disableInputs() {
-  timerBtn.disabled = true;
-  customTimerModalBtn.disabled = true;
-  customTimerInput.disabled = true;
-  selectTagButton.disabled = true;
-
-  timerBtn.classList.add("disabled");
-  customTimerModalBtn.classList.add("disabled");
-  selectTagButton.classList.add("disabled");
-}
-
-// Function to enable inputs and buttons
-function enableInputs() {
-  timerBtn.disabled = false;
-  customTimerModalBtn.disabled = false;
-  customTimerInput.disabled = false;
-  selectTagButton.disabled = false;
-
-  timerBtn.classList.remove("disabled");
-  customTimerModalBtn.classList.remove("disabled");
-  selectTagButton.classList.remove("disabled");
-}
-
-// Function to start the countdown
+// Timer Start/Stop
 function startTimer() {
   disableInputs();
   isTimerRunning = true;
-
   timerInterval = setInterval(() => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -167,52 +144,37 @@ function startTimer() {
   }, 1000);
 }
 
-// Function to toggle the Start/Stop button
+// Timer Control Buttons (Start/Stop)
 function toggleButtonToStop() {
-  startFocusBtn.innerHTML = ` 
-  <img src='./assets/stopFocusBtn.svg' />
-  <span>Stop</span>
-  `;
-  startFocusBtn.classList.add("bg-error");
+  startFocusBtn.innerHTML = `<img src='./assets/stopFocusBtn.svg' /><span>Stop</span>`;
+  startFocusBtn.classList.add("bg-error", "text-white");
   startFocusBtn.classList.remove("bg-yellow");
-  startFocusBtn.classList.add("text-white");
 }
 
 function toggleButtonToStart() {
-  startFocusBtn.innerHTML = `
-          <img src='./assets/startFocusBtn.svg' />
-          <span>Start Focusing</span>`;
-  startFocusBtn.classList.remove("bg-error");
+  startFocusBtn.innerHTML = `<img src='./assets/startFocusBtn.svg' /><span>Start Focusing</span>`;
+  startFocusBtn.classList.remove("bg-error", "text-white");
   startFocusBtn.classList.add("bg-yellow");
-  startFocusBtn.classList.remove("text-white");
 }
 
-// Start/Stop timer on button click
 startFocusBtn.addEventListener("click", () => {
   if (isTimerRunning) {
     clearInterval(timerInterval);
     isTimerRunning = false;
     enableInputs();
-    toggleButtonToStart(); // Change to "Start" button
+    toggleButtonToStart();
   } else {
     const time = Number(timerDisplay.getAttribute("data-time"));
     if (time || totalSeconds > 0) {
-      toggleButtonToStop(); // Change to "Stop" button
-      if (totalSeconds === 0) totalSeconds = time * 60; // Initialize if first start
+      toggleButtonToStop();
+      if (totalSeconds === 0) totalSeconds = time * 60;
       startTimer();
     }
   }
 });
 
-// Select elements
-const swNavBtnActive = document.querySelector(".swNavBtnActive");
-const swNavBtnInactive = document.querySelector(".swNavBtnInactive");
-const timerNavBtnActive = document.querySelector(".timerNavBtnActive");
-const timerNavBtnInactive = document.querySelector(".timerNavBtnInactive");
-
-// Add event listeners for the buttons
+// Navigation Buttons (Timer / Stopwatch)
 timerNavBtn.addEventListener("click", () => {
-  // Toggle background color
   timerNavBtn.classList.add("bg-brown");
   timerNavBtnActive.classList.remove("hidden");
   swNavBtnInactive.classList.remove("hidden");
@@ -220,7 +182,6 @@ timerNavBtn.addEventListener("click", () => {
   swNavBtnActive.classList.add("hidden");
   timerNavBtnInactive.classList.add("hidden");
 
-  // Show Timer elements and hide Stopwatch elements
   startFocus.classList.remove("hidden");
   timerBtn.classList.remove("hidden");
   startSW.classList.add("hidden");
@@ -228,15 +189,13 @@ timerNavBtn.addEventListener("click", () => {
 });
 
 swNavBtn.addEventListener("click", () => {
-  // If the timer is running, stop it and reset the start/stop button
   if (isTimerRunning) {
     clearInterval(timerInterval);
     isTimerRunning = false;
     enableInputs();
-    toggleButtonToStart(); // Reset button to "Start"
+    toggleButtonToStart();
   }
 
-  // Toggle background color
   swNavBtn.classList.add("bg-brown");
   timerNavBtn.classList.remove("bg-brown");
   swNavBtnActive.classList.remove("hidden");
@@ -244,9 +203,79 @@ swNavBtn.addEventListener("click", () => {
   timerNavBtnActive.classList.add("hidden");
   swNavBtnInactive.classList.add("hidden");
 
-  // Show Stopwatch elements and hide Timer elements
   startSW.classList.remove("hidden");
   swBtn.classList.remove("hidden");
   startFocus.classList.add("hidden");
   timerBtn.classList.add("hidden");
 });
+
+// Stopwatch Start/Stop
+startBtn.addEventListener("click", function () {
+  if (!isRunning) {
+    startBtn.classList.add("hidden");
+    stopResetBtnContainer.classList.remove("hidden");
+    selectTagButton.disabled = true;
+
+    isRunning = true;
+    timer = setInterval(function () {
+      seconds++;
+      if (seconds === 60) {
+        minutes++;
+        seconds = 0;
+      }
+
+      swDisplay.textContent = `${padTime(minutes)}:${padTime(seconds)}`;
+    }, 1000);
+  }
+});
+
+// Stopwatch Stop
+stopBtn.addEventListener("click", function () {
+  clearInterval(timer);
+  isRunning = false;
+
+  startBtn.classList.remove("hidden");
+  selectTagButton.disabled = false;
+  stopResetBtnContainer.classList.add("hidden");
+});
+
+// Stopwatch Reset
+resetBtn.addEventListener("click", function () {
+  clearInterval(timer);
+  isRunning = false;
+  minutes = 0;
+  seconds = 0;
+  swDisplay.textContent = "00:00";
+
+  startBtn.classList.remove("hidden");
+  selectTagButton.disabled = false;
+  stopResetBtnContainer.classList.add("hidden");
+});
+
+// Stopwatch Helper
+function padTime(time) {
+  return time < 10 ? "0" + time : time;
+}
+
+// Enable/Disable Inputs
+function disableInputs() {
+  timerBtn.disabled = true;
+  customTimerModalBtn.disabled = true;
+  customTimerInput.disabled = true;
+  selectTagButton.disabled = true;
+
+  timerBtn.classList.add("disabled");
+  customTimerModalBtn.classList.add("disabled");
+  selectTagButton.classList.add("disabled");
+}
+
+function enableInputs() {
+  timerBtn.disabled = false;
+  customTimerModalBtn.disabled = false;
+  customTimerInput.disabled = false;
+  selectTagButton.disabled = false;
+
+  timerBtn.classList.remove("disabled");
+  customTimerModalBtn.classList.remove("disabled");
+  selectTagButton.classList.remove("disabled");
+}
